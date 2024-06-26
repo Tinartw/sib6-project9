@@ -30,7 +30,7 @@ def load(database, collection):
     return col
 
 def get_data(database, collection):
-    mongo_uri = "mongodb+srv://temp_user:temp_user123@learn-mongo.7orknjo.mongodb.net/?retryWrites=true&w=majority&appName=learn-mongo"
+    mongo_uri = "isi sesuai konfigurasi Anda"
     if not mongo_uri:
         print("MONGO_URI not set in environment variables")
 
