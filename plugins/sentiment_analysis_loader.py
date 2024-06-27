@@ -1,27 +1,24 @@
-import re
-from textblob import TextBlob
+import mongodb_loader
+import pandas as pd
+from sentiment_analysis import SentimentAnalysis
+import postgres_loader
 
+def run():
+    db = mongodb_loader.get_data("news", "finnhub_news")
 
-class SentimentAnalysis:
+    news = [x for x in db.finnhub_news.find()]
 
-    def __init__(self, text):
-        self.text = text
+    output = []
+    for news_summary in news:
+        output.append(SentimentAnalysis(text=news_summary["summary"]).execute())
 
-    # only for english language
-    def execute(self):
-        # create TextBlob object of passed tweet text
-        analysis = TextBlob(self.text)
+        print(f"Summary {news_summary['summary']} successfully analized")
 
-        # set sentiment
-        if analysis.sentiment.polarity > 0:
-            data = {'text': self.text, 'sentiment': 'positive'}
-        elif analysis.sentiment.polarity == 0:
-            data = {'text': self.text, 'sentiment': 'neutral'}
-        else:
-            data = {'text': self.text, 'sentiment': 'negative'}
+    sentiment_output = pd.DataFrame(output)
 
-        return data
+    postgres_loader.load(sentiment_output, "sentiment_news_analysis")
+
+    print("Successfully loaded to Postgres")
 
 if __name__ == "__main__":
-	# calling main function
-    SentimentAnalysis('hard to learn NLTK').execute()
+    run()
